@@ -6,6 +6,7 @@ from telegram.ext import MessageHandler, CommandHandler, ConversationHandler, Re
 
 def start_handler(bot, update, user_data):
     update.message.reply_text('Hello!', reply_markup = ReplyKeyboardRemove())
+    update.message.reply_text('Нажмите кнопку', reply_markup = ReplyKeyboardMarkup([['Pizza main menu']]))
 
 
 def pizza_main_menu_handler(bot, update, user_data):
