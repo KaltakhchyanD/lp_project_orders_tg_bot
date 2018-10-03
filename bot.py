@@ -1,3 +1,4 @@
+import logging
 import os
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, RegexHandler, ConversationHandler
@@ -19,7 +20,7 @@ def main():
     mybot = Updater(os.getenv('API_KEY'), request_kwargs=PROXY)
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler('start', start_handler, pass_user_data=True))
-    dp.add_handler(pizza_menu)
+    dp.add_handler(pizza_main_menu)
 
 
     mybot.start_polling()
