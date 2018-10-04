@@ -3,10 +3,10 @@ import os
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, RegexHandler, ConversationHandler
 
-from settings import PROXY
 from handlers import start_handler
-from pizza_handlers import (pizza_main_menu_handler, menu_button_handler, special_offers_handler,
-    checkout_handler, contact_info_handler, end_handler, cancel_handler, pizza_main_menu)
+from pizza_handlers import pizza_main_menu
+from settings import PROXY
+
 
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
