@@ -2,15 +2,17 @@ from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import MessageHandler, CommandHandler, ConversationHandler, RegexHandler, Filters
 
 
-def pizza_main_menu_handler(bot, update, user_data):
-    kb_markup = ReplyKeyboardMarkup([['Menu_button'],
+pizza_main_menu_markup = ReplyKeyboardMarkup([['Menu_button'],
                                      ['Special_offers'],
                                      ['Checkout'],
-                                     ['Contact_info']])    
+                                     ['Contact_info']]) 
+
+
+def pizza_main_menu_handler(bot, update, user_data):
     update.message.reply_text(
     '''Добро пожаловать в Орехово Пицца!\nДля просмотра меню, акций,
 корзины или контактной информации\nнажмите соотвествующую кнопку:''',
-    reply_markup = kb_markup)
+    reply_markup = pizza_main_menu_markup)
     return 'state_choise'
 
 
@@ -20,24 +22,12 @@ def menu_button_handler(bot, update, user_data):
     return 'menu_state'
 
 
-def pizza_category_handler(bot, update, user_data):
-    update.message.reply_text('Здесь будет выбор пиццы')
-    return 'end'
-
-
-def drinks_category_handler(bot, update, user_data):
-    update.message.reply_text('Здесь будет выбор напитков')
-    return 'end'
-
-
-def other_category_handler(bot, update, user_data):
-    update.message.reply_text('Здесь будет прочее')
-    return 'end'
-
-
-def back_from_menu_handler(bot, update, user_data):
-    update.message.reply_text('Pizza main menu')
-
+def back_from_menu_handler(bot, update, user_data): 
+    update.message.reply_text(
+    '''Для просмотра меню, акций,\nкорзины или контактной информации
+нажмите соотвествующую кнопку:''',
+    reply_markup = pizza_main_menu_markup)
+    return 'state_choise'
 
 
 # Dummy handlers to test conversation handler
@@ -56,4 +46,17 @@ def contact_info_handler(bot, update, user_data):
     return 'end'
 
 
+def pizza_category_handler(bot, update, user_data):
+    update.message.reply_text('Здесь будет выбор пиццы')
+    return 'end'
+
+
+def drinks_category_handler(bot, update, user_data):
+    update.message.reply_text('Здесь будет выбор напитков')
+    return 'end'
+
+
+def other_category_handler(bot, update, user_data):
+    update.message.reply_text('Здесь будет прочее')
+    return 'end'
 

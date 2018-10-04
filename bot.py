@@ -4,7 +4,6 @@ import os
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, RegexHandler, ConversationHandler
 
 from handlers import conversation
-#from pizza_handlers import conversation, start_handler
 from settings import PROXY
 
 
