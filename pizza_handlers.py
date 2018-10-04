@@ -14,12 +14,33 @@ def pizza_main_menu_handler(bot, update, user_data):
     return 'state_choise'
 
 
-# Dummy handlers to test conversation handler
 def menu_button_handler(bot, update, user_data):
-    update.message.reply_text('This is menu button')
+    update.message.reply_text('Выберите категорию или вернитесь назад:',
+        reply_markup = ReplyKeyboardMarkup([['Пицца'],['Напитки'],['Прочее'],['Назад']]))
+    return 'menu_state'
+
+
+def pizza_category_handler(bot, update, user_data):
+    update.message.reply_text('Здесь будет выбор пиццы')
     return 'end'
 
 
+def drinks_category_handler(bot, update, user_data):
+    update.message.reply_text('Здесь будет выбор напитков')
+    return 'end'
+
+
+def other_category_handler(bot, update, user_data):
+    update.message.reply_text('Здесь будет прочее')
+    return 'end'
+
+
+def back_from_menu_handler(bot, update, user_data):
+    update.message.reply_text('Pizza main menu')
+
+
+
+# Dummy handlers to test conversation handler
 def special_offers_handler(bot, update, user_data):
     update.message.reply_text('This is special offers button')
     return 'end'
@@ -35,26 +56,4 @@ def contact_info_handler(bot, update, user_data):
     return 'end'
 
 
-def end_handler(bot, update, user_data):
-    update.message.reply_text('End state!', reply_markup = ReplyKeyboardRemove())
-    return ConversationHandler.END 
 
-
-def cancel_handler(bot, update, user_data):
-    update.message.reply_text('You have canceled the conversation', reply_markup = ReplyKeyboardRemove()) 
-
-
-pizza_main_menu = ConversationHandler(
-    entry_points = [RegexHandler('^(Pizza main menu)$', pizza_main_menu_handler, pass_user_data = True)],
-    states = {
-        'state_choise':[
-            RegexHandler('^(Menu_button)$', menu_button_handler, pass_user_data = True),
-            RegexHandler('^(Special_offers)$', special_offers_handler, pass_user_data = True),
-            RegexHandler('^(Checkout)$', checkout_handler, pass_user_data = True),
-            RegexHandler('^(Contact_info)$', contact_info_handler, pass_user_data = True)
-            ],
-        'end' :[MessageHandler(Filters.text, end_handler, pass_user_data = True)]
-        },
-
-    fallbacks = [CommandHandler('cancel', cancel_handler, pass_user_data = True)]
-    )
