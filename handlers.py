@@ -8,6 +8,11 @@ from pizza_handlers import (pizza_main_menu_handler, menu_button_handler, specia
     other_category_handler, back_from_menu_handler
 )
 
+from cafe_handlers import (cafe_main_menu_handler, keyboard_coffee, keyboard_sweets, send_Americano_description,
+    send_Capuccino_description, send_Glase_description, send_Latte_description, send_Kozinka_description,
+    send_Sharlotka_description, send_Browny_description, send_HotDog_description, send_Cupcacke_description
+)
+
 
 def start_handler(bot, update, user_data):
     update.message.reply_text(''' Привет, я бот, который поможет
@@ -17,9 +22,9 @@ def start_handler(bot, update, user_data):
     return 'mode_choise_state'
 
 
-def cafe_main_menu_handler(bot, update, user_data):
+'''def cafe_main_menu_handler(bot, update, user_data):
     update.message.reply_text('Here will be cafe menu', reply_markup=ReplyKeyboardRemove())
-    return ConversationHandler.END
+    return ConversationHandler.END '''
 
 
 def end_handler(bot, update, user_data):
