@@ -8,27 +8,29 @@ from pizza_handlers import (pizza_main_menu_handler, menu_button_handler, specia
     other_category_handler, back_from_menu_handler
 )
 
-from cafe_handlers import (cafe_main_menu_handler, keyboard_coffee, keyboard_sweets, send_Americano_description,
+from cafe_handlers import (cafe_main_menu_handler, keyboard_coffee, keyboard_sweets, 
+    send_HotDog_description, send_Americano_description,
     send_Capuccino_description, send_Glase_description, send_Latte_description, send_Kozinka_description,
-    send_Sharlotka_description, send_Browny_description, send_HotDog_description, send_Cupcacke_description
+    send_Sharlotka_description, send_Browny_description, send_Cupcacke_description
 )
 
 
 def start_handler(bot, update, user_data):
     update.message.reply_text(''' Привет, я бот, который поможет
-тебе заказать пиццу или выпить кофе!
+тебе заказать пиццу или  кофеёк с плюшками!
 Выбери опцию, нажав одну из кнопок:''',
          reply_markup = ReplyKeyboardMarkup([['Pizza main menu'],['Cafe main menu'],['Test_phone_and_name']]))
     return 'mode_choise_state'
 
 
-'''def cafe_main_menu_handler(bot, update, user_data):
-    update.message.reply_text('Here will be cafe menu', reply_markup=ReplyKeyboardRemove())
-    return ConversationHandler.END '''
-
 
 def end_handler(bot, update, user_data):
     update.message.reply_text('End state!', reply_markup = ReplyKeyboardRemove())
+    return ConversationHandler.END 
+
+
+def show_my_basket(bot, update, user_data):
+    update.message.reply_text('Пока корзина не готова, сорри!', reply_markup = ReplyKeyboardRemove())
     return ConversationHandler.END 
 
 
@@ -134,6 +136,29 @@ conversation = ConversationHandler(
             RegexHandler('^(Прочее)$', other_category_handler, pass_user_data = True),
             RegexHandler('^(Назад)$', back_from_menu_handler, pass_user_data = True)
         ],
+        'menu_cafe_state':[
+            RegexHandler('^(Menu_coffee)$', keyboard_coffee, pass_user_data = True),
+            RegexHandler('^(Menu_sweets)$', keyboard_sweets, pass_user_data = True),
+            RegexHandler('^(Прочее)$', other_category_handler, pass_user_data = True),
+            RegexHandler('^(Назад)$', back_from_menu_handler, pass_user_data = True)
+        ],
+        'menu_coffee_bar':[
+            RegexHandler('^(Menu_sweets)$', keyboard_sweets, pass_user_data = True),
+            RegexHandler('^(корзина)$', show_my_basket, pass_user_data = True),
+            RegexHandler('^(Americano)$', send_Americano_description, pass_user_data = True),
+            RegexHandler('^(Capuccino)$', send_Capuccino_description, pass_user_data=True),
+            RegexHandler('^(Гляссе)$', send_Glase_description, pass_user_data=True),
+            RegexHandler('^(Latte)$', send_Latte_description, pass_user_data=True)
+        ],
+        'menu_sweets_bar':[
+            RegexHandler('^(menu_coffee_bar)$', keyboard_coffee, pass_user_data = True),
+            RegexHandler('^(корзина)$', show_my_basket, pass_user_data = True),
+            RegexHandler('^(корзиночку)$', send_Kozinka_description, pass_user_data = True),
+            RegexHandler('^(шарлотку)$', send_Sharlotka_description, pass_user_data = True),
+            RegexHandler('^(Browny)$', send_Browny_description, pass_user_data=True),
+            RegexHandler('^(hot dog)$', send_HotDog_description, pass_user_data=True),
+            RegexHandler('^(chocupcake)$', send_Cupcacke_description, pass_user_data=True)
+        ], 
         'test_phone_choise':[
             MessageHandler(Filters.contact, test_phone, pass_user_data=True),
             RegexHandler('^(Ввести имя)$', test_name, pass_user_data = True)
