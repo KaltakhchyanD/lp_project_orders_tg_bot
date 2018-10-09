@@ -143,6 +143,7 @@ conversation = ConversationHandler(
             RegexHandler('^(Назад)$', back_from_menu_handler, pass_user_data = True)
         ],
         'menu_coffee_bar':[
+            RegexHandler('^(В начало)$', start_handler, pass_user_data = True),
             RegexHandler('^(Menu_sweets)$', keyboard_sweets, pass_user_data = True),
             RegexHandler('^(корзина)$', show_my_basket, pass_user_data = True),
             RegexHandler('^(Americano)$', send_Americano_description, pass_user_data = True),
@@ -151,6 +152,7 @@ conversation = ConversationHandler(
             RegexHandler('^(Latte)$', send_Latte_description, pass_user_data=True)
         ],
         'menu_sweets_bar':[
+            RegexHandler('^(В начало)$', start_handler, pass_user_data = True),
             RegexHandler('^(menu_coffee_bar)$', keyboard_coffee, pass_user_data = True),
             RegexHandler('^(корзина)$', show_my_basket, pass_user_data = True),
             RegexHandler('^(корзиночку)$', send_Kozinka_description, pass_user_data = True),
@@ -166,6 +168,7 @@ conversation = ConversationHandler(
         'phone_choise':[
             RegexHandler('^(Yes)$', phone_good, pass_user_data=True),
             RegexHandler('^(No)$', phone_bad, pass_user_data=True),
+            RegexHandler('^(В начало)$', start_handler, pass_user_data = True),
         ],
         'phone_input':[
             MessageHandler(Filters.text, check_phone_input, pass_user_data = True)
@@ -174,6 +177,7 @@ conversation = ConversationHandler(
         'name_choise':[
             RegexHandler('^(Yes)$', name_good, pass_user_data=True),
             RegexHandler('^(No)$', name_bad, pass_user_data=True),
+            RegexHandler('^(В начало)$', start_handler, pass_user_data = True),
         ],        
         'name_input':[
             MessageHandler(Filters.text, check_name_input, pass_user_data = True)

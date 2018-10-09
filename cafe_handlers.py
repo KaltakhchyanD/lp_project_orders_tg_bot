@@ -30,7 +30,7 @@ choose what do you want excactly''',
 def keyboard_coffee(bot, update, user_data):
     update.message.reply_text( 'Выберите кофеёк или вернитесь назад, чтоб выбрать сладость:',
         reply_markup = ReplyKeyboardMarkup([
-                                        ['Menu_sweets','корзина'],
+                                        ['В начало','Menu_sweets','корзина'],
                                         ['Americano','Гляссе' ],
                                         ['Capuccino','Latte']
                                         ], resize_keyboard=True
@@ -41,7 +41,7 @@ def keyboard_coffee(bot, update, user_data):
 def keyboard_sweets(bot, update, user_data):
     update.message.reply_text( 'Привет, что бы вы хотели из бейкери, из сладенького?',    
     reply_markup = ReplyKeyboardMarkup([
-                                        ['menu_coffee_bar','корзина'],
+                                        ['В начало','menu_coffee_bar','корзина'],
                                         ['Browny','hot dog' , 'chocupcake'],
                                         ['шарлотку','корзиночку']
                                        ], resize_keyboard=True
@@ -55,7 +55,7 @@ def send_HotDog_description(bot, update, user_data):
     bot.send_photo(chat_id=update.message.chat.id, photo=open(Kor_pic, 'rb'))
     update.message.reply_text('сосиска в булке c горчичкой и томатным соусом',
         reply_markup=ReplyKeyboardMarkup([
-                                        ['menu_coffee_bar','корзина'],
+                                        ['В начало','menu_coffee_bar','корзина'],
                                         ['Browny','hot dog' , 'chocupcake'],
                                         ['шарлотку','корзиночку']
                                        ], resize_keyboard=True
@@ -69,7 +69,7 @@ def send_Browny_description(bot, update, user_data):
     bot.send_photo(chat_id=update.message.chat.id, photo=open(Brown_pic, 'rb'))
     update.message.reply_text('bakery with lots of chocolate',
         reply_markup=ReplyKeyboardMarkup([
-                                        ['menu_coffee_bar','корзина'],
+                                        ['В начало','menu_coffee_bar','корзина'],
                                         ['Browny','hot dog' , 'chocupcake'],
                                         ['шарлотку','корзиночку']
                                        ], resize_keyboard=True
@@ -83,7 +83,7 @@ def send_Kozinka_description(bot, update, user_data):
     bot.send_photo(chat_id=update.message.chat.id, photo=open(Kor_pic, 'rb'))
     update.message.reply_text('песочная корзинка с белковым кремом', 
         reply_markup=ReplyKeyboardMarkup([
-                                        ['menu_coffee_bar','корзина'],
+                                        ['В начало','menu_coffee_bar','корзина'],
                                         ['Browny','hot dog' , 'chocupcake'],
                                         ['шарлотку','корзиночку']
                                        ], resize_keyboard=True
@@ -97,7 +97,7 @@ def send_Sharlotka_description(bot, update, user_data):
     bot.send_photo(chat_id=update.message.chat.id, photo=open(Kor_pic, 'rb'))
     update.message.reply_text('sponge with apples inside and cinnamon on the top', 
         reply_markup=ReplyKeyboardMarkup([
-                                        ['menu_coffee_bar','корзина'],
+                                        ['В начало','menu_coffee_bar','корзина'],
                                         ['Browny','hot dog' , 'chocupcake'],
                                         ['шарлотку','корзиночку']
                                        ], resize_keyboard=True
@@ -112,7 +112,7 @@ def send_Cupcacke_description(bot, update, user_data):
     bot.send_photo(chat_id=update.message.chat.id, photo=open(Kor_pic, 'rb'))
     update.message.reply_text( 'chocolate cupcake from Marisha', 
         reply_markup=ReplyKeyboardMarkup([
-                                        ['menu_coffee_bar','корзина'],
+                                        ['В начало','menu_coffee_bar','корзина'],
                                         ['Browny','hot dog' , 'chocupcake'],
                                         ['шарлотку','корзиночку']
                                        ], resize_keyboard=True
@@ -126,7 +126,7 @@ def send_Americano_description(bot, update, user_data):
     bot.send_photo(chat_id=update.message.chat.id, photo=open(Dan_pic, 'rb'))
     update.message.reply_text( 'just black coffee',
         reply_markup = ReplyKeyboardMarkup([
-                                        ['Menu_sweets','корзина'],
+                                        ['В начало','Menu_sweets','корзина'],
                                         ['Americano','Гляссе' ],
                                         ['Capuccino','Latte']
                                         ], resize_keyboard=True
@@ -140,7 +140,7 @@ def send_Capuccino_description(bot, update, user_data):
     bot.send_photo(chat_id=update.message.chat.id, photo=open(Dan_pic, 'rb'))
     update.message.reply_text( 'coffee with milk',
         reply_markup = ReplyKeyboardMarkup([
-                                        ['Menu_sweets','корзина'],
+                                        ['В начало','Menu_sweets','корзина'],
                                         ['Americano','Гляссе' ],
                                         ['Capuccino','Latte']
                                         ], resize_keyboard=True
@@ -155,7 +155,7 @@ def send_Latte_description(bot, update, user_data):
     bot.send_photo(chat_id=update.message.chat.id, photo=open(Lat_pic, 'rb'))
     update.message.reply_text( 'coffee rich of milk, more than in Capuccino',
         reply_markup = ReplyKeyboardMarkup([
-                                        ['Menu_sweets','корзина'],
+                                        ['В начало','Menu_sweets','корзина'],
                                         ['Americano','Гляссе' ],
                                         ['Capuccino','Latte']
                                         ], resize_keyboard=True
@@ -169,7 +169,7 @@ def send_Glase_description(bot, update, user_data):
     bot.send_photo(chat_id=update.message.chat.id, photo=open(Glase_pic, 'rb'))
     update.message.reply_text( 'coffee with spoon of ice-cream',
         reply_markup = ReplyKeyboardMarkup([
-                                        ['Menu_sweets','корзина'],
+                                        ['В начало','Menu_sweets','корзина'],
                                         ['Americano','Гляссе' ],
                                         ['Capuccino','Latte']
                                         ], resize_keyboard=True
