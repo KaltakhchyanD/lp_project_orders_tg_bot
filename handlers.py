@@ -5,7 +5,8 @@ from telegram.ext import MessageHandler, CommandHandler, ConversationHandler, Re
 
 from pizza_handlers import (pizza_main_menu_handler, menu_button_handler, special_offers_handler,
     checkout_handler, contact_info_handler, pizza_category_handler, drinks_category_handler,
-    other_category_handler, back_from_menu_handler
+    other_category_handler, back_from_menu_handler, add_pizza_to_order_handler,
+    change_menu_page_handler
 )
 
 
@@ -61,7 +62,7 @@ def phone_bad(bot, update, user_data):
 def check_phone_input(bot, update, user_data):
     user_input = update.message.text.lstrip().rstrip()
     print(user_input)
-    phone_to_check = re.findall(r'\d{11}',user_input)
+    phone_to_check = re.findall(r'^\d{11}$',user_input)
     print(phone_to_check)
     if len(phone_to_check)!=1:
         update.message.reply_text('Проверьте формат ввода и введие снова')
@@ -129,6 +130,10 @@ conversation = ConversationHandler(
             RegexHandler('^(Прочее)$', other_category_handler, pass_user_data = True),
             RegexHandler('^(Назад)$', back_from_menu_handler, pass_user_data = True)
         ],
+        'pizza_choise':[
+            RegexHandler('^\d+$', add_pizza_to_order_handler, pass_user_data = True),
+            RegexHandler('^Пред\.|След\.|Назад$', change_menu_page_handler, pass_user_data = True)
+        ],
         'test_phone_choise':[
             MessageHandler(Filters.contact, test_phone, pass_user_data=True),
             RegexHandler('^(Ввести имя)$', test_name, pass_user_data = True)
@@ -140,7 +145,6 @@ conversation = ConversationHandler(
         'phone_input':[
             MessageHandler(Filters.text, check_phone_input, pass_user_data = True)
         ],
-      
         'name_choise':[
             RegexHandler('^(Yes)$', name_good, pass_user_data=True),
             RegexHandler('^(No)$', name_bad, pass_user_data=True),
@@ -152,7 +156,6 @@ conversation = ConversationHandler(
         MessageHandler(Filters.text, end_handler, pass_user_data = True)
         ]
     },
-
     fallbacks = [CommandHandler('cancel', cancel_handler, pass_user_data = True)]
     )
 
