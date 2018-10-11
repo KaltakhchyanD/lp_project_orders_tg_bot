@@ -105,3 +105,6 @@ env_local.py
 
 # mypy
 .mypy_cache/
+
+# settings
+settings.py
