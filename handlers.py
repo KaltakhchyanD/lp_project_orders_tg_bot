@@ -5,10 +5,10 @@ from telegram.ext import MessageHandler, CommandHandler, ConversationHandler, Re
 
 from pizza_handlers import (pizza_main_menu_handler, menu_button_handler, special_offers_handler,
                             checkout_handler, contact_info_handler, pizza_category_handler, drinks_category_handler,
-                            other_category_handler, back_from_menu_handler, add_pizza_to_cart_handler,
-                            change_menu_page_handler, back_from_checkout_handler, change_cart_handler,
-                            order_pizza_handler, back_from_order_handler, send_order_handler, 
-                            remove_from_cart_handler, back_from_removing_from_cart_handler
+                            other_category_handler, add_pizza_to_cart_handler,
+                            change_menu_page_handler, change_cart_handler,
+                            order_pizza_handler, send_order_handler, 
+                            remove_from_cart_handler
                             )
 
 
@@ -113,7 +113,7 @@ def check_name_input_handler(bot, update, user_data):
 
 def check_user_data_completeness(bot, update, user_data):
     if 'phone' in user_data.keys() and 'name' in user_data.keys():
-        return 'pizzeria_send_order'
+        return send_order_handler(bot, update, user_data)
     else:
         return enter_name_and_phone_handler(bot, update, user_data)
 
@@ -137,7 +137,7 @@ conversation = ConversationHandler(
             RegexHandler('^(Пицца)$', pizza_category_handler, pass_user_data=True),
             RegexHandler('^(Напитки)$', drinks_category_handler, pass_user_data=True),
             RegexHandler('^(Прочее)$', other_category_handler, pass_user_data=True),
-            RegexHandler('^(Назад)$', back_from_menu_handler, pass_user_data=True)
+            RegexHandler('^(Назад)$', pizza_main_menu_handler, pass_user_data=True)
         ],
         'pizza_choise_state': [
             RegexHandler('^\d+$', add_pizza_to_cart_handler, pass_user_data=True),
@@ -145,27 +145,27 @@ conversation = ConversationHandler(
         ],
 
         'pizzeria_checkout_state':[
-            RegexHandler('^(Назад)$', back_from_checkout_handler, pass_user_data=True),
+            RegexHandler('^(Назад)$', pizza_main_menu_handler, pass_user_data=True),
             RegexHandler('^(Изменить заказ)$', change_cart_handler, pass_user_data=True),
             RegexHandler('^Сделать заказ$', order_pizza_handler, pass_user_data=True)
         ],
         'removeing_from_cart_state': [
             RegexHandler('^\w+x\w\s*-1$', remove_from_cart_handler, pass_user_data=True),
-            RegexHandler('^(Назад)$', back_from_removing_from_cart_handler, pass_user_data=True),
+            RegexHandler('^(Назад)$', checkout_handler, pass_user_data=True),
         ],
 
         'pizzeria_make_order_state': [
-            RegexHandler('^(Назад)$', back_from_order_handler, pass_user_data=True),
+            RegexHandler('^(Назад)$', checkout_handler, pass_user_data=True),
             RegexHandler('^(Отправить заказ)$', enter_name_and_phone_handler, pass_user_data=True)
         ],
-        'pizzeria_send_order': [
-            MessageHandler(Filters.text, send_order_handler, pass_user_data=True)
-        ],
+#        'pizzeria_send_order': [
+#            MessageHandler(Filters.text, send_order_handler, pass_user_data=True)
+#        ],
 
         'enter_phone_choise': [
             MessageHandler(Filters.contact, enter_phone_handler, pass_user_data=True),
             RegexHandler('^(Ввести имя)$', enter_name_handler, pass_user_data=True),
-            RegexHandler('^(Назад)$', back_from_menu_handler, pass_user_data=True)
+            RegexHandler('^(Назад)$', pizza_main_menu_handler, pass_user_data=True)
         ],
         'phone_choise': [
             RegexHandler('^(Yes)$', phone_good_handler, pass_user_data=True),

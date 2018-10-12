@@ -19,10 +19,10 @@ def pizza_main_menu_handler(bot, update, user_data):
         'корзины или контактной информации\nнажмите соотвествующую кнопку:',
         reply_markup=pizza_main_menu_markup)
     user_id =  update.message.from_user['id']
-    user_data[user_id] = {'id':user_id}
-    if 'cart' not in user_data[user_id].keys() :
+    if user_id not in user_data.keys():
+        user_data[user_id] = {'id':user_id}
+    if 'cart' not in user_data[user_id].keys():
         user_data[user_id]['cart']=[]
-    print(user_data[user_id])
     return 'pizzeria_main_menu_state'
 
 
@@ -35,15 +35,6 @@ def menu_button_handler(bot, update, user_data):
     user_data['pizza'] = {}
     user_data['pizza']['menu_page'] = 0
     return 'pizzeria_menu_state'
-
-
-def back_from_menu_handler(bot, update, user_data):
-    update.message.reply_text(
-        'Для просмотра меню, акций,\nкорзины или контактной\n'+
-        'информации\nнажмите соотвествующую кнопку:',
-        reply_markup=pizza_main_menu_markup)
-    print(user_data[update.message.from_user['id']])
-    return 'pizzeria_main_menu_state'
 
 
 def print_pizza_menu(bot, update, user_data):
@@ -121,10 +112,6 @@ def remove_from_cart_handler(bot, update, user_data):
     return change_cart_handler(bot, update, user_data)
 
 
-def back_from_checkout_handler(bot, update, user_data):
-    return back_from_menu_handler(bot, update, user_data)
-
-
 def order_pizza_handler(bot, update, user_data):
     user_id =  update.message.from_user['id']
     cart = user_data[user_id]['cart']
@@ -133,20 +120,6 @@ def order_pizza_handler(bot, update, user_data):
     for i in sorted(set(cart)):
         update.message.reply_text(f'{i}x{cart.count(i)}, Цена: tbd\n')
     return 'pizzeria_make_order_state'
-
-
-def back_from_order_handler(bot, update, user_data):
-    return checkout_handler(bot, update, user_data)
-
-
-def back_from_removing_from_cart_handler(bot, update, user_data):
-    return checkout_handler(bot, update, user_data)
-
-#def checks_before_order_handler(bot, update, user_data):
-#    phone_button = KeyboardButton('Телефон', request_contact=True)
-#    update.message.reply_text('Пожалуйста, заполните данные о себе:',
-#        reply_markup=ReplyKeyboardMarkup([[phone_button], ['Ввести имя']]))
-#    return 'test_phone_choise'
 
 
 def send_order_handler(bot, update, user_data):
