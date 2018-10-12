@@ -8,10 +8,11 @@ from pizza_handlers import (pizza_main_menu_handler, menu_button_handler, specia
     other_category_handler, back_from_menu_handler
 )
 
+from cafe_handlers import k
 from cafe_handlers import (cafe_main_menu_handler, keyboard_coffee, keyboard_sweets, 
     send_HotDog_description, send_Americano_description,
     send_Capuccino_description, send_Glase_description, send_Latte_description, send_Kozinka_description,
-    send_Sharlotka_description, send_Browny_description, send_Cupcacke_description
+    send_Sharlotka_description, send_Browny_description, send_Cupcacke_description, add_coffee
 )
 
 
@@ -30,7 +31,7 @@ def end_handler(bot, update, user_data):
 
 
 def show_my_basket(bot, update, user_data):
-    update.message.reply_text('Пока корзина не готова, сорри!', reply_markup = ReplyKeyboardRemove())
+    update.message.reply_text('Пока корзина не готова, сорри! вы заказали ', k, 'lattee', reply_markup = ReplyKeyboardRemove())
     return ConversationHandler.END 
 
 
@@ -149,6 +150,7 @@ conversation = ConversationHandler(
             RegexHandler('^(Americano)$', send_Americano_description, pass_user_data = True),
             RegexHandler('^(Capuccino)$', send_Capuccino_description, pass_user_data=True),
             RegexHandler('^(Гляссе)$', send_Glase_description, pass_user_data=True),
+            RegexHandler('^(добавить_в_корз)$', add_coffee, pass_user_data=True),
             RegexHandler('^(Latte)$', send_Latte_description, pass_user_data=True)
         ],
         'menu_sweets_bar':[
