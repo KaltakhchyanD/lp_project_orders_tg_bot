@@ -9,8 +9,8 @@ pizza_main_menu_markup = ReplyKeyboardMarkup([['Menu_button'],
                                               ['Checkout'],
                                               ['Contact_info']])
 
-from settings import ADMIN_ID
-
+from settings import ADMIN_ID, ADMIN_EMAIL
+from utils import send_mail
 
 
 def pizza_main_menu_handler(bot, update, user_data):
@@ -74,7 +74,7 @@ def pizza_category_handler(bot, update, user_data):
 def add_pizza_to_cart_handler(bot, update, user_data):
     pizza_index = update.message.text
     user_data[update.message.from_user['id']]['cart'].append(pizza_index)
-    update.message.reply_text(f'Пицца №{pizza_index} добавленя в корзину')
+    update.message.reply_text(f'Пицца №{pizza_index} добавлена в корзину')
     print_pizza_menu(bot, update, user_data)
 
 
@@ -99,12 +99,8 @@ def checkout_handler(bot, update, user_data):
             update.message.reply_text(f'{i}x{cart.count(i)}, Цена: tbd\n')
         update.message.reply_text('Для изменения заказа, нажмите соотвествующую кнопку', 
             reply_markup = ReplyKeyboardMarkup([['Изменить заказ'],['Назад'],['Сделать заказ']]))
-#        markup = [[f'{i}x{cart.count(i)} -1'] for i in sorted(set(cart))]
-#        markup.extend([['Назад', 'Сделать заказ']])
-#        update.message.reply_text('Для уменьшения колличества позиций на 1\n'+
-#            'нажмите соотвествующую кнопку',
-#            reply_markup = ReplyKeyboardMarkup(markup, resize_keyboard=True))
     return 'pizzeria_checkout_state'
+
 
 def change_cart_handler(bot, update, user_data):
     user_id =  update.message.from_user['id']
@@ -155,8 +151,9 @@ def back_from_removing_from_cart_handler(bot, update, user_data):
 
 def send_order_handler(bot, update, user_data):
     user_id =  update.message.from_user['id']
-    bot.send_message(ADMIN_ID, f'Пользователь {user_id} сделал заказ:\n'+
-        f'{user_data[user_id]["cart"]}')
+    msg = f'Пользователь {user_id} сделал заказ:\n'+f'{user_data[user_id]["cart"]}'
+    bot.send_message(ADMIN_ID, msg)
+    send_mail(msg, ADMIN_EMAIL)
     update.message.reply_text('Спасибо за заказ, вам позвонит оператор')
     return pizza_main_menu_handler(bot, update, user_data)
 
