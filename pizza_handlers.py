@@ -66,7 +66,6 @@ def add_pizza_to_cart_handler(bot, update, user_data):
     pizza_index = update.message.text
     user_data[update.message.from_user['id']]['cart'].append(pizza_index)
     update.message.reply_text(f'Пицца №{pizza_index} добавлена в корзину')
-    print_pizza_menu(bot, update, user_data)
 
 
 def change_menu_page_handler(bot, update, user_data):
