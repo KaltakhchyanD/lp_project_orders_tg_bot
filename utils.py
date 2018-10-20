@@ -37,12 +37,14 @@ class Customer(Base):
     full_name=Column(String(50))
     email=Column(String(100), unique=True)
     phone_number=Column(String(100), unique=True)
+    tg_chat_id=Column(Integer)
     orders = relationship('Order', backref = 'customer')
 
-    def __init__(self, full_name = None, email = None, phone_number=None):
+    def __init__(self, full_name = None, phone_number=None, tg_chat_id=None, email = None):
         self.full_name = full_name
-        self.email = email
         self.phone_number = phone_number
+        self.tg_chat_id = tg_chat_id
+        self.email = email
 
     def __repr__(self):
         return f'<User {self.full_name} {self.email} {self.phone_number}>'
@@ -68,8 +70,8 @@ def create_tables():
     Base.metadata.create_all(bind=engine)
 
 
-def add_customer(full_name, phone_number, email=None):
-    c = Customer(full_name, email, phone_number)
+def add_customer(full_name, phone_number, tg_chat_id, email=None):
+    c = Customer(full_name, phone_number, tg_chat_id, email)
     db_session.add(c)
     db_session.commit()
 
@@ -82,6 +84,8 @@ def add_order(order, user_id):
 
 def get_customer_id_by_phone(phone_number):
     c = Customer.query.filter(Customer.phone_number==phone_number).first()
+    if not c:
+        return False
     return c.id
 
 
