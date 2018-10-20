@@ -11,6 +11,7 @@ pizza_main_menu_markup = ReplyKeyboardMarkup([['Menu_button'],
 
 from settings import ADMIN_ID, ADMIN_EMAIL
 from utils import send_mail
+from utils import add_customer, add_order, get_customer_id_by_phone
 
 
 def pizza_main_menu_handler(bot, update, user_data):
@@ -123,6 +124,9 @@ def order_pizza_handler(bot, update, user_data):
 
 def send_order_handler(bot, update, user_data):
     user_id =  update.message.from_user['id']
+    if not get_customer_id_by_phone(user_data['phone']):
+        add_customer(user_data['name'], user_data['phone'], user_id)
+    add_order(user_data[user_id]["cart"], get_customer_id_by_phone(user_data['phone']))
     msg = f'Пользователь {user_id} сделал заказ:\n'+f'{user_data[user_id]["cart"]}'
     bot.send_message(ADMIN_ID, msg)
     send_mail(msg, ADMIN_EMAIL)
