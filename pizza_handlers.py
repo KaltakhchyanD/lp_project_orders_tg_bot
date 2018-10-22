@@ -11,7 +11,7 @@ pizza_main_menu_markup = ReplyKeyboardMarkup([['Menu_button'],
 
 from settings import ADMIN_ID, ADMIN_EMAIL
 from utils import send_mail
-from utils import add_customer, add_order, get_customer_id_by_phone
+from utils import add_customer, add_order, get_customer_id_by_phone, get_pizza_by_id
 
 
 def pizza_main_menu_handler(bot, update, user_data):
@@ -37,23 +37,26 @@ def menu_button_handler(bot, update, user_data):
     user_data['pizza']['menu_page'] = 0
     return 'pizzeria_menu_state'
 
+pizza_names_dict = {}
 
 def print_pizza_menu(bot, update, user_data):
-    pizza_photos = glob('images/pizza/pizza*.jp*g')
-    dct = {}
-    for i in pizza_photos:
-        k = re.search(r'pizza(\d+)\.j', i)
-        dct[k.group(1)] = i
     pizza_num = user_data['pizza']['menu_page']
     optional_buttons = [['Пред.', 'След.', 'Назад']]
     if not pizza_num:
         optional_buttons[0].pop(0)
     elif pizza_num == 2:
         optional_buttons[0].pop(1)
+    if not len(pizza_names_dict):
+        pizza_photos = glob('images/pizza/pizza*.jp*g')
+        for i in pizza_photos:
+            k = re.search(r'pizza(\d+)\.j', i)
+            pizza_names_dict[k.group(1)] = i
 
-    markup = [[str(i + 1)] for i in range(pizza_num * 5, min(5 + pizza_num * 5, 14))] + optional_buttons
-    for i in range(pizza_num * 5, min(5 + pizza_num * 5, 14)):
-        with open(dct[str(i)], 'rb') as f:
+#    markup = [[str(i + 1)] for i in range(pizza_num * 5, min(5 + pizza_num * 5, 11))] + optional_buttons
+    markup = [[get_pizza_by_id(i + 1).name] for i in range(pizza_num * 5, min(5 + pizza_num * 5, 11))] + optional_buttons
+
+    for i in range(pizza_num * 5, min(5 + pizza_num * 5, 11)):  # 2nd value in min() should be fixed!
+        with open(pizza_names_dict[str(i+1)], 'rb') as f:
             bot.send_photo(chat_id=update.message.chat.id, photo=f)
     update.message.reply_text('Выберите пиццу:', reply_markup=ReplyKeyboardMarkup(markup, resize_keyboard=True))
 
@@ -66,7 +69,7 @@ def pizza_category_handler(bot, update, user_data):
 def add_pizza_to_cart_handler(bot, update, user_data):
     pizza_index = update.message.text
     user_data[update.message.from_user['id']]['cart'].append(pizza_index)
-    update.message.reply_text(f'Пицца №{pizza_index} добавлена в корзину')
+    update.message.reply_text(f'Пицца {pizza_index} добавлена в корзину')
 
 
 def change_menu_page_handler(bot, update, user_data):
@@ -101,7 +104,7 @@ def change_cart_handler(bot, update, user_data):
     update.message.reply_text('Для уменьшения колличества позиций на 1\n'+
         'нажмите соотвествующую кнопку',
         reply_markup = ReplyKeyboardMarkup(markup, resize_keyboard=True))
-    return 'removeing_from_cart_state'
+    return 'removing_from_cart_state'
 
 
 def remove_from_cart_handler(bot, update, user_data):
