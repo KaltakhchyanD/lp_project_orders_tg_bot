@@ -11,6 +11,7 @@ from pizza_handlers import (pizza_main_menu_handler, menu_button_handler, specia
                             remove_from_cart_handler
                             )
 
+from utils import pizza_names_for_regex_hendler as p_n
 
 def start_handler(bot, update, user_data):
     update.message.reply_text('Привет, я бот, который поможет\nтебе заказать пиццу или выпить кофе!\n'+
@@ -140,7 +141,7 @@ conversation = ConversationHandler(
             RegexHandler('^(Назад)$', pizza_main_menu_handler, pass_user_data=True)
         ],
         'pizza_choise_state': [
-            RegexHandler('^\d+$', add_pizza_to_cart_handler, pass_user_data=True),
+            RegexHandler(f'^{p_n()}$', add_pizza_to_cart_handler, pass_user_data=True),
             RegexHandler('^Пред\.|След\.|Назад$', change_menu_page_handler, pass_user_data=True)
         ],
 
@@ -149,7 +150,7 @@ conversation = ConversationHandler(
             RegexHandler('^(Изменить заказ)$', change_cart_handler, pass_user_data=True),
             RegexHandler('^Сделать заказ$', order_pizza_handler, pass_user_data=True)
         ],
-        'removeing_from_cart_state': [
+        'removing_from_cart_state': [
             RegexHandler('^\w+x\w\s*-1$', remove_from_cart_handler, pass_user_data=True),
             RegexHandler('^(Назад)$', checkout_handler, pass_user_data=True),
         ],
