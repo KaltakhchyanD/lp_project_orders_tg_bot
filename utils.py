@@ -131,19 +131,19 @@ def add_order(order, user_id):
     db_session.commit()
 
 
-def get_customer_id_by_phone(phone_number):
+def get_customer_by_phone(phone_number):
     c = Customer.query.filter(Customer.phone_number==phone_number).first()
     if not c:
         return False
-    return c.id
+    return c
 
 
-def get_order_id_by_phone(phone_number):
+def get_order_by_phone(phone_number):
     #o = Order.query.filter(Order.customer.phone_number==phone_number).first()
     orders = Order.query.all()
     for i in orders:
         if i.customer.phone_number==phone_number:
-            return i.id
+            return i
 
 
 def get_pizza_by_id(id):
