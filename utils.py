@@ -100,8 +100,8 @@ class Drink(Base):
         return f'Drink {self.name}: {self.price}'
 
 
-class Association(Base):
-    __tablename__='association'
+class Association_pizzas(Base):
+    __tablename__='association_pizzas'
     order_id = Column(ForeignKey('orders.id'), primary_key=True)
     pizza_id = Column(ForeignKey('pizzas.id'), primary_key=True)
     how_many_in_order = Column(Integer)
@@ -209,7 +209,7 @@ def pizza_names_for_regex_hendler():
 
 def add_product_to_assciation_table(order, product, count):
     if isinstance(product, Pizza):
-        association = Association(order.id, product.id, count)
+        association = Association_pizzas(order.id, product.id, count)
     elif isinstance(product, Drink):
         association = Association_drinks(order.id, product.id, count)
     else:
