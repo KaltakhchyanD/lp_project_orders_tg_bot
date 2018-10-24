@@ -11,7 +11,8 @@ pizza_main_menu_markup = ReplyKeyboardMarkup([['Menu_button'],
 
 from settings import ADMIN_ID, ADMIN_EMAIL
 from utils import send_mail
-from utils import add_customer, add_order, get_customer_by_phone, get_pizza_by_id
+from utils import (add_customer, add_order, get_customer_by_phone,
+    get_pizza_by_id, get_pizza_by_name, get_product_by_name)
 
 
 def pizza_main_menu_handler(bot, update, user_data):
@@ -62,9 +63,9 @@ def pizza_category_handler(bot, update, user_data):
 
 
 def add_pizza_to_cart_handler(bot, update, user_data):
-    pizza_index = update.message.text
-    user_data['cart'].append(pizza_index)
-    update.message.reply_text(f'Пицца {pizza_index} добавлена в корзину')
+    pizza_name = update.message.text
+    user_data['cart'].append(get_pizza_by_name(pizza_name))
+    update.message.reply_text(f'Пицца {pizza_name} добавлена в корзину')
 
 
 def change_menu_page_handler(bot, update, user_data):
@@ -84,8 +85,9 @@ def checkout_handler(bot, update, user_data):
     if not len(cart):
         update.message.reply_text('Ваша корзина пуста', reply_markup=ReplyKeyboardMarkup([['Назад']]))
     else:
-        for i in sorted(set(cart)):
-            update.message.reply_text(f'{i} x{cart.count(i)}, Цена: tbd\n')
+        product_names = [i.name for i in cart]
+        for i in sorted(set(product_names)):
+            update.message.reply_text(f'{i} x{product_names.count(i)}, Цена: {get_product_by_name(i).price}\n')
         update.message.reply_text('Для изменения заказа, нажмите соотвествующую кнопку', 
             reply_markup = ReplyKeyboardMarkup([['Изменить заказ'],['Назад'],['Сделать заказ']]))
     return 'pizzeria_checkout_state'
@@ -94,7 +96,8 @@ def checkout_handler(bot, update, user_data):
 def change_cart_handler(bot, update, user_data):
     user_id =  update.message.from_user['id']
     cart = user_data['cart']
-    markup = [[f'{i} x{cart.count(i)} -1'] for i in sorted(set(cart))]
+    product_names = [i.name for i in cart]
+    markup = [[f'{i} x{product_names.count(i)} -1'] for i in sorted(set(product_names))]
     markup.extend([['Назад']])
     update.message.reply_text('Для уменьшения колличества позиций на 1\n'+
         'нажмите соотвествующую кнопку',
@@ -115,8 +118,9 @@ def order_pizza_handler(bot, update, user_data):
     cart = user_data['cart']
     update.message.reply_text('Ваш заказ:',
         reply_markup = ReplyKeyboardMarkup([['Назад'],['Отправить заказ']]))
-    for i in sorted(set(cart)):
-        update.message.reply_text(f'{i}x{cart.count(i)}, Цена: tbd\n')
+    product_names = [i.name for i in cart]
+    for i in sorted(set(product_names)):
+        update.message.reply_text(f'{i} x{product_names.count(i)}, Цена: {get_pizza_by_name(i).price}\n')
     return 'pizzeria_make_order_state'
 
 
@@ -124,7 +128,7 @@ def send_order_handler(bot, update, user_data):
     user_id =  update.message.from_user['id']
     if not get_customer_by_phone(user_data['phone']):
         add_customer(user_data['name'], user_data['phone'], user_id)
-    add_order(user_data["cart"], get_customer_by_phone(user_data['phone']).id)
+    add_order('some text', get_customer_by_phone(user_data['phone']).id, *user_data["cart"])
     msg = f'Пользователь {user_id} сделал заказ:\n'+f'{user_data["cart"]}'
     bot.send_message(ADMIN_ID, msg)
     send_mail(msg, ADMIN_EMAIL)
