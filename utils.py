@@ -50,7 +50,6 @@ class Customer(Base):
         return f'<User {self.full_name} {self.email} {self.phone_number}>'
 
 
-
 class Order(Base):
     __tablename__ = 'orders'
     id = Column(Integer, primary_key = True)
@@ -105,14 +104,30 @@ class Association(Base):
     __tablename__='association'
     order_id = Column(ForeignKey('orders.id'), primary_key=True)
     pizza_id = Column(ForeignKey('pizzas.id'), primary_key=True)
-    extra_data = Column(String(100))
+    how_many_in_order = Column(Integer)
+    
+    def __init__(self, order_id, pizza_id, how_many_in_order):
+        self.order_id = order_id
+        self.pizza_id = pizza_id
+        self.how_many_in_order = how_many_in_order
+
+    def __repr__(self):
+        return f'Association Order {self.order_id} : Pizza {self.pizza_id}'
 
 
 class Association_drinks(Base):
     __tablename__='association_drinks'
     order_id = Column(ForeignKey('orders.id'), primary_key=True)
     drink_id = Column(ForeignKey('drinks.id'), primary_key=True)
-    extra_data = Column(String(100))
+    how_many_in_order = Column(Integer)
+    
+    def __init__(self, order_id, drink_id, how_many_in_order):
+        self.order_id = order_id
+        self.drink_id = drink_id
+        self.how_many_in_order = how_many_in_order
+
+    def __repr__(self):
+        return f'Association Order {self.order_id} : Drink {self.drink_id}'
 
 
 def create_tables():
@@ -125,21 +140,24 @@ def add_customer(full_name, phone_number, tg_chat_id, email=None):
     db_session.commit()
 
 
-def add_order(order, user_id):
-    o = Order(datetime.datetime.now(), order, user_id)
-    db_session.add(o)
+def add_order(order, user_id, *products):
+    order = Order(datetime.datetime.now(), order, user_id)
+    db_session.add(order)
     db_session.commit()
+    product_names = [i.name for i in products]
+    #g = db_session.query(Association.query.filter(Association.order_id == 15, Association.pizza_id == 1).exists()).scalar()
+    for product_name in set(product_names):
+        add_product_to_assciation_table(order, get_product_by_name(product_name), product_names.count(product_name))
 
 
 def get_customer_by_phone(phone_number):
-    c = Customer.query.filter(Customer.phone_number==phone_number).first()
-    if not c:
+    customer = Customer.query.filter(Customer.phone_number==phone_number)[0]
+    if not customer:
         return False
-    return c
+    return customer
 
 
 def get_order_by_phone(phone_number):
-    #o = Order.query.filter(Order.customer.phone_number==phone_number).first()
     orders = Order.query.all()
     for i in orders:
         if i.customer.phone_number==phone_number:
@@ -153,9 +171,49 @@ def get_pizza_by_id(id):
     return pizza
 
 
+def get_pizza_by_name(name):
+    pizza = Pizza.query.filter(Pizza.name==name).first()
+    if not pizza:
+        return False
+    return pizza
+
+
+def get_drink_by_name(name):
+    drink = Drink.query.filter(Drink.name==name).first()
+    if not drink:
+        return False
+    return drink
+
+
+def get_product_by_name(product_name):
+    if get_pizza_by_name(product_name):
+        return get_pizza_by_name(product_name)
+    elif get_drink_by_name(product_name):
+        return get_drink_by_name(product_name)
+    else:
+        return False
+
+
+def get_drink_by_id(id):
+    drink = Drink.query.filter(Drink.id==id).first()
+    if not drink:
+        return False
+    return drink
+
+
 def pizza_names_for_regex_hendler():
     pizza_names = [line.name for line in Pizza.query.all()]
     string_of_names = "|".join(pizza_names)
     return string_of_names
 
+
+def add_product_to_assciation_table(order, product, count):
+    if isinstance(product, Pizza):
+        association = Association(order.id, product.id, count)
+    elif isinstance(product, Drink):
+        association = Association_drinks(order.id, product.id, count)
+    else:
+        return False # Might be good idea to raise some custom exception
+    db_session.add(association)
+    db_session.commit()
 
