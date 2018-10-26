@@ -56,7 +56,7 @@ class Order(Base):
     date = Column(DateTime)
     order = Column(Text)
     user_id = Column(ForeignKey('customers.id'))
-    pizza = relationship('Association', backref = 'order')
+    pizza = relationship('Association_pizzas', backref = 'order')
     drink = relationship('Association_drinks', backref='order')
 
     def __init__(self, date = None, order = None, user_id = None):
@@ -73,7 +73,7 @@ class Pizza(Base):
     id = Column(Integer, primary_key=True, autoincrement=False)
     name = Column(String(100), unique = True)
     price = Column(Integer)
-    order = relationship('Association', backref = 'pizza')
+    order = relationship('Association_pizzas', backref = 'pizza')
 
     def __init__(self, id, name, price):
         self.id = id
