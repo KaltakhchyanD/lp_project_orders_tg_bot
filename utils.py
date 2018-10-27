@@ -151,7 +151,7 @@ def add_order(order, user_id, *products):
 
 
 def get_customer_by_phone(phone_number):
-    customer = Customer.query.filter(Customer.phone_number==phone_number)[0]
+    customer = Customer.query.filter(Customer.phone_number==phone_number).first()
     if not customer:
         return False
     return customer
