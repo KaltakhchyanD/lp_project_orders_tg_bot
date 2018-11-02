@@ -1,5 +1,5 @@
 from glob import glob
-import re
+import re, os
 
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
 from telegram.ext import MessageHandler, CommandHandler, ConversationHandler, RegexHandler, Filters
@@ -44,7 +44,8 @@ def print_pizza_menu(bot, update, user_data):
     elif pizza_num == 2:
         optional_buttons[0].pop(1)
     if not len(pizza_names_dict):
-        pizza_photos = glob('images/pizza/pizza*.jp*g')
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        pizza_photos = glob(current_dir+'/images/pizza/pizza*.jp*g')
         for i in pizza_photos:
             k = re.search(r'pizza(\d+)\.j', i)
             pizza_names_dict[k.group(1)] = i
