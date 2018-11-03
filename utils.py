@@ -25,8 +25,11 @@ def send_mail(txt_2_send, dst):
     s.send_message(msg)
     s.quit()
 
+db_name = os.getenv('DB_NAME')
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
 
-engine = create_engine('postgresql+psycopg2://daniel:some_password@localhost:5432/test_db')
+engine = create_engine(f'postgresql+psycopg2://{db_user}:{db_password}@localhost:5432/{db_name}')
 db_session = scoped_session(sessionmaker(bind=engine))
 Base = declarative_base()
 Base.query = db_session.query_property()
