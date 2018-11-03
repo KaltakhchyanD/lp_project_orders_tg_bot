@@ -1,6 +1,7 @@
 import logging
 import os
 
+import sentry_sdk
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, RegexHandler, ConversationHandler
 
 from handlers import conversation
@@ -14,6 +15,8 @@ logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
 
 logger = logging.getLogger(__name__)
 logger.info('BOTBOT')
+
+sentry_sdk.init("https://b67a03c0cb244e35b5a57c803abae167@sentry.io/1315096")
 
 
 
