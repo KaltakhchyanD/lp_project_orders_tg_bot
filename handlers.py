@@ -287,7 +287,7 @@ conversation = ConversationHandler(
             RegexHandler('^Сделать заказ$', order_pizza_handler, pass_user_data=True)
         ],
         'removing_from_cart_state': [
-            RegexHandler('^\w+\sx\w\s*-1$', remove_from_cart_handler, pass_user_data=True),
+            RegexHandler('^\w+\s\w*\s?x\w\s*-1$', remove_from_cart_handler, pass_user_data=True),
             RegexHandler('^(Назад)$', checkout_handler, pass_user_data=True),
         ],
 

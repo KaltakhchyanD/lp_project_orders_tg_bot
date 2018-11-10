@@ -108,12 +108,13 @@ def change_cart_handler(bot, update, user_data):
 
 def remove_from_cart_handler(bot, update, user_data):
     print('Удаление')
-    item = re.search(r'(\w+)\sx\w\s*-1', update.message.text).group(1)
+    item = re.search(r'(\w+\s\w*)\s?x\w\s*-1', update.message.text).group(1).rstrip()
     print('Удалить - ',item)
     cart = user_data['cart']
     print(cart)
     # TODO debug this
-    cart.remove(item)
+    cart_item = [i for i in cart if i.name == item][0]
+    cart.remove(cart_item)
     return change_cart_handler(bot, update, user_data)
 
 
