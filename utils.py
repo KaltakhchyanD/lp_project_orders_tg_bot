@@ -11,6 +11,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import psycopg2
 
 
+
 def send_mail(txt_2_send, dst):
     src = os.getenv('EMAIL_FROM')
     pswd = os.getenv('PSWD')

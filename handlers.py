@@ -1,3 +1,4 @@
+from pprint import pprint
 import re
 
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
@@ -12,6 +13,7 @@ from pizza_handlers import (pizza_main_menu_handler, menu_button_handler, specia
                             )
 
 from utils import pizza_names_for_regex_hendler as p_n
+from geo import check_address_in_zone_full, check_coords_in_zone_full, get_coordinates_by_address
 
 def start_handler(bot, update, user_data):
     update.message.reply_text('Привет, я бот, который поможет\nтебе заказать пиццу или выпить кофе!\n'+
@@ -34,17 +36,33 @@ def cancel_handler(bot, update, user_data):
     update.message.reply_text('You have canceled the conversation', reply_markup=ReplyKeyboardRemove())
 
 
-def enter_name_and_phone_handler(bot, update, user_data):
+def enter_user_info_handler(bot, update, user_data):
     phone_button = KeyboardButton('Телефон', request_contact=True)
-    update.message.reply_text('Пожалуйста, заполните данные о себе:',
-        reply_markup=ReplyKeyboardMarkup([[phone_button], ['Ввести имя'],['Назад']]))
+    needed_data = []
+    if 'phone' not in user_data.keys():
+        needed_data.append('Номер телефона')
+    if 'name' not in user_data.keys():
+        needed_data.append('Имя')
+    if 'location' not in user_data.keys():
+        needed_data.append('Адрес')
+    nl = "\n"
+    update.message.reply_text('Пожалуйста, заполните :\n'+f'{nl.join([i for i in needed_data])}',
+        reply_markup=ReplyKeyboardMarkup([
+            [phone_button],
+            ['Ввести имя'],
+            ['Ввести адрес'],
+            ['Назад']
+        ]))
     return 'enter_phone_choise'
+
 
 
 def enter_phone_handler(bot, update, user_data):
     if 'phone' in user_data.keys():
         update.message.reply_text(f'Я знаю, что ваш Телефон - {user_data["phone"]}')
-        return enter_name_and_phone_handler(bot, update, user_data)
+        markup = ReplyKeyboardMarkup([['Да'],['Нет']])
+        update.message.reply_text('Хотите изменить?', reply_markup=markup)
+        return 'phone_change'
     else:
         update.message.reply_text(f'Ваш Телефон - {update.message.contact["phone_number"]}?',
                                   reply_markup=ReplyKeyboardMarkup([['Yes'], ['No']]))
@@ -54,12 +72,12 @@ def enter_phone_handler(bot, update, user_data):
 
 def phone_good_handler(bot, update, user_data):
     user_data['phone'] = user_data['temp']
-    update.message.reply_text(f'Отлично, я запомню его {user_data["phone"]}')
+    update.message.reply_text(f'Отлично, я запомню его {user_data["phone"]}', reply_markup=ReplyKeyboardRemove())
     return check_user_data_completeness(bot, update, user_data)
 
 
 def phone_bad_handler(bot, update, user_data):
-    update.message.reply_text('Тогда введите его в формате 79001234567:')
+    update.message.reply_text('Тогда введите его в формате 79001234567:', reply_markup=ReplyKeyboardRemove())
     return 'phone_input'
 
 
@@ -72,15 +90,18 @@ def check_phone_input_handler(bot, update, user_data):
         update.message.reply_text('Проверьте формат ввода и введие снова')
         return 'phone_input'
     else:
-        user_data['phone'] = user_input
+        user_data['phone'] = '+'+user_input
         update.message.reply_text(f'Отлично, я запомню его {user_data["phone"]}')
-        return enter_name_and_phone_handler(bot, update, user_data)
+        return enter_user_info_handler(bot, update, user_data)
+
 
 
 def enter_name_handler(bot, update, user_data):
     if 'name' in user_data.keys():
         update.message.reply_text(f'Я знаю, что вас зовут - {user_data["name"]}')
-        return enter_name_and_phone_handler(bot, update, user_data)
+        markup = ReplyKeyboardMarkup([['Да'],['Нет']])
+        update.message.reply_text('Хотите изменить?', reply_markup=markup)
+        return 'name_change'
     else:
         update.message.reply_text(f'Вас зовут - {update.message.from_user.full_name}?',
                                   reply_markup=ReplyKeyboardMarkup([['Yes'], ['No']]))
@@ -109,14 +130,98 @@ def check_name_input_handler(bot, update, user_data):
     else:
         user_data['name'] = user_input
         update.message.reply_text(f'Отлично, я запомню его {user_data["name"]}')
-        return enter_name_and_phone_handler(bot, update, user_data)
+        return enter_user_info_handler(bot, update, user_data)
+
+
+
+
+
+
+
+def enter_address_handler(bot, update, user_data):
+    location_button = KeyboardButton('Определить текущее положение', request_location=True)
+    reply_markup = ReplyKeyboardMarkup([
+        ['Ввести адрес'],
+        [location_button]
+        ])
+    update.message.reply_text('Введите адрес сами\n или нажмите кнопку\n'+
+        'для определения вашего\n текущего положения', reply_markup=reply_markup)
+    return 'address_input_choise'
+
+
+
+
+
+def get_location_handler(bot, update, user_data):
+    if 'location' in user_data.keys():
+        update.message.reply_text(f'Я уже знаю ваше положение - {user_data["location"]}')
+        markup = ReplyKeyboardMarkup([['Да'],['Нет']])
+        update.message.reply_text('Хотите изменить?', reply_markup=markup)
+        return 'address_change'
+    else:
+        # TODO - save address to 'location', not coords
+        location = update.message.location
+        print(location)
+        coords = (float(location['latitude']),float(location['longitude']))
+        user_data['location'] = coords
+        user_data['location_input'] = 'auto'
+        return define_if_address_is_valid(bot, update, user_data)
+
+
+def write_address_manualy_handler(bot, update, user_data):
+    if 'location' in user_data.keys():
+        update.message.reply_text(f'Я уже знаю ваше положение - {user_data["location"]}')
+        markup = ReplyKeyboardMarkup([['Да'],['Нет']])
+        update.message.reply_text('Хотите изменить?', reply_markup=markup)
+        return 'address_change'
+    else:
+        update.message.reply_text('Введите адрес в формате\n Улица Дом:')
+        return 'address_input'
+
+
+def check_address_handler(bot, update, user_data):
+    # Upgrade this - exctract only street and building
+    address = update.message.text+' Москва'
+    print('Address - ',address)
+    # TODO - fix this shit
+    coords = get_coordinates_by_address(address)
+    if not coords:
+        update.message.reply_text('Проверьте формат ввода\n и попробуйте снова')
+        return enter_address_handler(bot, update, user_data)
+    else: 
+        print('Coords - ', coords)
+        user_data['location'] = coords
+        user_data['location_input'] = 'manual'
+        return define_if_address_is_valid(bot, update, user_data)
+
+
+def define_if_address_is_valid(bot, update, user_data):
+    coords = user_data['location']
+    # Will be replaced with good stuff (check disctrict and shit)
+#    coords_check = check_point_is_under_edge_of_area(float(coords[0]), float(coords[1]))
+    coords_check = check_coords_in_zone_full(coords)
+    if coords_check:
+        # Shoul mb ask if he want me to remember that exact address as default
+        update.message.reply_text('Отлично! Я запомню ваш адрес')
+        return check_user_data_completeness(bot, update, user_data)
+    else:
+        if user_data['location_input'] == 'manual':
+            update.message.reply_text('К сожалению вы вне зоны доставки')
+            return enter_address_handler(bot, update, user_data) 
+
+
+
+
+
+
+
 
 
 def check_user_data_completeness(bot, update, user_data):
-    if 'phone' in user_data.keys() and 'name' in user_data.keys():
+    if 'phone' in user_data.keys() and 'name' in user_data.keys() and 'location' in user_data.keys():
         return send_order_handler(bot, update, user_data)
     else:
-        return enter_name_and_phone_handler(bot, update, user_data)
+        return enter_user_info_handler(bot, update, user_data)
 
 
 conversation = ConversationHandler(
@@ -125,7 +230,7 @@ conversation = ConversationHandler(
         'mode_choise_state': [
             RegexHandler('^(Pizza main menu)$', pizza_main_menu_handler, pass_user_data=True),
             RegexHandler('^(Cafe main menu)$', cafe_main_menu_handler, pass_user_data=True),
-            RegexHandler('^(enter_phone_and_name)$', enter_name_and_phone_handler, pass_user_data=True)
+            RegexHandler('^(enter_phone_and_name)$', enter_user_info_handler, pass_user_data=True)
         ],
 
         'pizzeria_main_menu_state': [
@@ -151,37 +256,63 @@ conversation = ConversationHandler(
             RegexHandler('^Сделать заказ$', order_pizza_handler, pass_user_data=True)
         ],
         'removing_from_cart_state': [
-            RegexHandler('^\w+x\w\s*-1$', remove_from_cart_handler, pass_user_data=True),
+            RegexHandler('^\w+\sx\w\s*-1$', remove_from_cart_handler, pass_user_data=True),
             RegexHandler('^(Назад)$', checkout_handler, pass_user_data=True),
         ],
 
         'pizzeria_make_order_state': [
             RegexHandler('^(Назад)$', checkout_handler, pass_user_data=True),
-            RegexHandler('^(Отправить заказ)$', enter_name_and_phone_handler, pass_user_data=True)
+            RegexHandler('^(Отправить заказ)$', enter_user_info_handler, pass_user_data=True)
         ],
-#        'pizzeria_send_order': [
-#            MessageHandler(Filters.text, send_order_handler, pass_user_data=True)
-#        ],
+
 
         'enter_phone_choise': [
             MessageHandler(Filters.contact, enter_phone_handler, pass_user_data=True),
             RegexHandler('^(Ввести имя)$', enter_name_handler, pass_user_data=True),
+            RegexHandler('^(Ввести адрес)$', enter_address_handler, pass_user_data=True),
             RegexHandler('^(Назад)$', pizza_main_menu_handler, pass_user_data=True)
         ],
         'phone_choise': [
             RegexHandler('^(Yes)$', phone_good_handler, pass_user_data=True),
             RegexHandler('^(No)$', phone_bad_handler, pass_user_data=True),
         ],
+        'phone_change':[
+            RegexHandler('^(Да)$', phone_bad_handler, pass_user_data=True),
+            RegexHandler('^(Нет)$', check_user_data_completeness, pass_user_data=True),
+        ],
         'phone_input': [
             MessageHandler(Filters.text, check_phone_input_handler, pass_user_data=True)
         ],
+
+
         'name_choise': [
             RegexHandler('^(Yes)$', name_good_handler, pass_user_data=True),
-            RegexHandler('^(No)$', name_bad_handler, pass_user_data=True),
+            RegexHandler('^(No)$', name_bad_handler, pass_user_data=True)
+        ],
+        'name_change': [
+            RegexHandler('^(Да)$', name_bad_handler, pass_user_data=True),
+            RegexHandler('^(Нет)$', check_user_data_completeness, pass_user_data=True)
         ],
         'name_input': [
             MessageHandler(Filters.text, check_name_input_handler, pass_user_data=True)
         ],
+
+
+
+
+        'address_input': [
+            MessageHandler(Filters.text, check_address_handler, pass_user_data=True)
+        ],
+        'address_input_choise':[
+            MessageHandler(Filters.location, get_location_handler, pass_user_data=True),
+            RegexHandler('^(Ввести адрес)$', write_address_manualy_handler, pass_user_data=True )
+        ],
+        'address_change':[
+            RegexHandler('^(Да)$', enter_address_handler, pass_user_data=True),
+            RegexHandler('^(Нет)$', check_user_data_completeness, pass_user_data=True)
+        ],
+
+
 
         'end': [
             MessageHandler(Filters.text, end_handler, pass_user_data=True)
