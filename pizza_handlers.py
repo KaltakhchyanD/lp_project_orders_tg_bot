@@ -147,6 +147,7 @@ def send_order_handler(bot, update, user_data):
     bot.send_message(ADMIN_ID, msg)
     send_mail(msg, ADMIN_EMAIL)
     update.message.reply_text('Спасибо за заказ, вам позвонит оператор')
+    user_data['cart']=[]
     return pizza_main_menu_handler(bot, update, user_data)
 
 

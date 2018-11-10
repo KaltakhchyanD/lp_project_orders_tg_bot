@@ -47,6 +47,9 @@ def enter_user_info_handler(bot, update, user_data):
     if 'location' not in user_data.keys():
         needed_data.append('Адрес')
     nl = "\n"
+    if not len(needed_data):
+        return check_user_data_completeness(bot, update, user_data)
+
     update.message.reply_text('Пожалуйста, заполните :\n'+f'{nl.join([i for i in needed_data])}',
         reply_markup=ReplyKeyboardMarkup([
             [phone_button],
