@@ -139,6 +139,21 @@ def check_name_input_handler(bot, update, user_data):
 
 
 
+def enter_address_handler_change(bot, update, user_data):
+    print('CHANGING ADDRESS')
+    user_data['addr_change']=True
+    return enter_address_handler(bot, update, user_data)
+
+
+def enter_phone_handler_change(bot, update, user_data):
+    user_data['phone_change']=True
+    return enter_phone_handler(bot, update, user_data)
+
+
+def enter_name_handler_change(bot, update, user_data):
+    user_data['name_change']=True
+    return enter_name_handler(bot, update, user_data)
+
 
 
 
@@ -157,7 +172,8 @@ def enter_address_handler(bot, update, user_data):
 
 
 def get_location_handler(bot, update, user_data):
-    if 'location' in user_data.keys():
+    print(user_data['addr_change'])
+    if 'location' in user_data.keys() and not user_data['addr_change']:
         update.message.reply_text(f'Я уже знаю ваше положение - {user_data["location"]}')
         markup = ReplyKeyboardMarkup([['Да'],['Нет']])
         update.message.reply_text('Хотите изменить?', reply_markup=markup)
@@ -173,7 +189,8 @@ def get_location_handler(bot, update, user_data):
 
 
 def write_address_manualy_handler(bot, update, user_data):
-    if 'location' in user_data.keys():
+    print(user_data['addr_change'])
+    if 'location' in user_data.keys() and not user_data['addr_change']:
         update.message.reply_text(f'Я уже знаю ваше положение - {user_data["location"]}')
         markup = ReplyKeyboardMarkup([['Да'],['Нет']])
         update.message.reply_text('Хотите изменить?', reply_markup=markup)
@@ -200,6 +217,7 @@ def check_address_handler(bot, update, user_data):
 
 
 def define_if_address_is_valid(bot, update, user_data):
+    print('define')
     coords = user_data['location']
     # Will be replaced with good stuff (check disctrict and shit)
     #coords_check = check_point_is_under_edge_of_area(float(coords[0]), float(coords[1]))
@@ -217,9 +235,11 @@ def define_if_address_is_valid(bot, update, user_data):
 #        return check_user_data_completeness(bot, update, user_data)
         return require_address_details(bot, update, user_data)
     else:
-        if user_data['location_input'] == 'manual':
-            update.message.reply_text('К сожалению вы вне зоны доставки')
-            return enter_address_handler(bot, update, user_data) 
+        user_data['address'] = ''
+
+#        if user_data['location_input'] == 'manual':
+        update.message.reply_text('К сожалению вы вне зоны доставки')
+        return enter_address_handler(bot, update, user_data) 
 
 
 
@@ -354,7 +374,7 @@ conversation = ConversationHandler(
             RegexHandler('^(Ввести адрес)$', write_address_manualy_handler, pass_user_data=True )
         ],
         'address_change':[
-            RegexHandler('^(Да)$', enter_address_handler, pass_user_data=True),
+            RegexHandler('^(Да)$', enter_address_handler_change, pass_user_data=True),
             RegexHandler('^(Нет)$', check_user_data_completeness, pass_user_data=True)
         ],
 

@@ -33,6 +33,9 @@ def menu_button_handler(bot, update, user_data):
                                                                 ['Назад']]))
     user_data['pizza'] = {'menu_page':0}
     user_data['drink'] = {'menu_page':0}
+    user_data['addr_change']=False
+    user_data['name_change']=False
+    user_data['phone_change']=False
 
     return 'pizzeria_menu_state'
 
