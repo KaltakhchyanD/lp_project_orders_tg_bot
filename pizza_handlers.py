@@ -143,7 +143,7 @@ def send_order_handler(bot, update, user_data):
 
     add_order('some text', get_customer_by_phone(user_data['phone']).id,  get_address_by_coords_db(coords).id, *user_data["cart"])
     # TODO - add address
-    msg = f'Пользователь {user_id} сделал заказ:\n'+f'{user_data["cart"]}'
+    msg = f'Польпрователь {user_id} сделал заказ:\n'+f'{user_data["cart"]}'
     bot.send_message(ADMIN_ID, msg)
     send_mail(msg, ADMIN_EMAIL)
     update.message.reply_text('Спасибо за заказ, вам позвонит оператор')
@@ -210,6 +210,6 @@ def add_drink_to_cart_handler(bot, update, user_data):
 
 def other_category_handler(bot, update, user_data):
     update.message.reply_text('Здесь будет прочее')
-    return 'end'
+    return menu_button_handler(bot, update, user_data)
 
 # def
