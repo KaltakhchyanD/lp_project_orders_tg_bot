@@ -13,7 +13,7 @@ from pizza_handlers import (pizza_main_menu_handler, menu_button_handler, specia
                             )
 
 from utils import pizza_names_for_regex_hendler as p_n
-from geo import check_address_in_zone_full, check_coords_in_zone_full, get_coordinates_by_address
+from geo import check_address_in_zone_full, check_coords_in_zone_full, get_coordinates_by_address, get_address_by_coords
 
 def start_handler(bot, update, user_data):
     update.message.reply_text('Привет, я бот, который поможет\nтебе заказать пиццу или выпить кофе!\n'+
@@ -198,12 +198,20 @@ def check_address_handler(bot, update, user_data):
 def define_if_address_is_valid(bot, update, user_data):
     coords = user_data['location']
     # Will be replaced with good stuff (check disctrict and shit)
-#    coords_check = check_point_is_under_edge_of_area(float(coords[0]), float(coords[1]))
+    #coords_check = check_point_is_under_edge_of_area(float(coords[0]), float(coords[1]))
     coords_check = check_coords_in_zone_full(coords)
     if coords_check:
         # Shoul mb ask if he want me to remember that exact address as default
-        update.message.reply_text('Отлично! Я запомню ваш адрес')
-        return check_user_data_completeness(bot, update, user_data)
+        # TODO - put here check of appartment
+        address = get_address_by_coords(coords)
+        user_data['address'] = address
+        print(f'Coords at define - {coords}')
+        print(f'Address at define - {address}')
+
+
+#        update.message.reply_text('Отлично! Я запомню ваш адрес')
+#        return check_user_data_completeness(bot, update, user_data)
+        return require_address_details(bot, update, user_data)
     else:
         if user_data['location_input'] == 'manual':
             update.message.reply_text('К сожалению вы вне зоны доставки')
@@ -211,6 +219,29 @@ def define_if_address_is_valid(bot, update, user_data):
 
 
 
+
+
+def require_address_details(bot, update, user_data):
+    if 'address_details' in user_data.keys():
+        update.message.reply_text(f'Я уже знаю  - {user_data["address_details"]}')
+        markup = ReplyKeyboardMarkup([['Да'],['Нет']])
+        update.message.reply_text('Хотите изменить?', reply_markup=markup)
+        return 'address_details_change'
+    else:
+        update.message.reply_text('Введите адрес в формате\n Подъезд Этаж Домофон')
+        return 'address_details_input'
+
+
+def add_address_details(bot, update, user_data):
+    details = update.message.text
+    if details:
+        user_data['address_details'] = details
+        update.message.reply_text('Отлично я это запомню', reply_markup = ReplyKeyboardRemove())
+        print(f'Полный адрес - {user_data["address"]} {user_data["address_details"]}')
+        return check_user_data_completeness(bot, update, user_data)
+    else:
+        update.message.reply_text('Проверьте формат ввода\n и попробуйте снова')
+        return require_address_details(bot, update, user_data)
 
 
 
@@ -303,6 +334,9 @@ conversation = ConversationHandler(
         'address_input': [
             MessageHandler(Filters.text, check_address_handler, pass_user_data=True)
         ],
+        'address_details_input': [
+            MessageHandler(Filters.text, add_address_details, pass_user_data=True)
+        ],        
         'address_input_choise':[
             MessageHandler(Filters.location, get_location_handler, pass_user_data=True),
             RegexHandler('^(Ввести адрес)$', write_address_manualy_handler, pass_user_data=True )

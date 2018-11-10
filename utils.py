@@ -60,16 +60,39 @@ class Order(Base):
     date = Column(DateTime)
     order = Column(Text)
     user_id = Column(ForeignKey('customers.id'))
+    address_id = Column(ForeignKey('addresses.id'))
     pizza = relationship('Association_pizzas', backref = 'order')
     drink = relationship('Association_drinks', backref='order')
 
-    def __init__(self, date = None, order = None, user_id = None):
+    def __init__(self, date = None, order = None, user_id = None, address_id = None):
         self.date = date
         self.order = order
         self.user_id = user_id
+        self.address_id = address_id
 
     def __repr__(self):
-        return f'Order {self.id} - {self.order}'
+        return f'Order {self.id} - {self.order} at {self.address_id}'
+
+class Address(Base):
+    __tablename__ = 'addresses'
+    id = Column(Integer, primary_key = True)
+    coords = Column(String(200))
+ #   lat = Column(String(100))
+ #   lon = Column(String(100))
+    address = Column(String(100))
+    address_details = Column(String(100))
+    orders = relationship('Order', backref = 'address')
+
+    def __init__(self, coords = None, address = None, address_details = None):
+        self.coords = coords
+#        self.lat = lat
+#        self.lon = lon
+        self.address = address
+        self.address_details = address_details
+
+    def __repr__(self):
+        return f'Coords - {self.coords}, Address_full - {self.address}, {self.address_details}'
+
 
 
 class Pizza(Base):
@@ -144,8 +167,14 @@ def add_customer(full_name, phone_number, tg_chat_id, email=None):
     db_session.commit()
 
 
-def add_order(order, user_id, *products):
-    order = Order(datetime.datetime.now(), order, user_id)
+def add_address(coords, address, address_details):
+    a = Address(coords, address, address_details)
+    db_session.add(a)
+    db_session.commit()
+
+
+def add_order(order, user_id, address_id, *products):
+    order = Order(datetime.datetime.now(), order, user_id, address_id)
     db_session.add(order)
     db_session.commit()
     product_names = [i.name for i in products]
@@ -159,6 +188,14 @@ def get_customer_by_phone(phone_number):
     if not customer:
         return False
     return customer
+
+
+def get_address_by_coords_db(coords):
+#    str_coords = ', '.join([i for i in coords])
+    address = Address.query.filter(Address.coords==coords).first()
+    if not address:
+        return False
+    return address
 
 
 def get_order_by_phone(phone_number):

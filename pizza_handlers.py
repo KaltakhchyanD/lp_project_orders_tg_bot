@@ -11,8 +11,8 @@ pizza_main_menu_markup = ReplyKeyboardMarkup([['Menu_button'],
 
 from settings import ADMIN_ID, ADMIN_EMAIL
 from utils import send_mail
-from utils import (add_customer, add_order, get_customer_by_phone,
-    get_pizza_by_id, get_pizza_by_name, get_product_by_name)
+from utils import (add_customer, add_order, add_address, get_customer_by_phone,
+    get_pizza_by_id, get_pizza_by_name, get_product_by_name, get_address_by_coords_db)
 
 
 def pizza_main_menu_handler(bot, update, user_data):
@@ -132,7 +132,12 @@ def send_order_handler(bot, update, user_data):
     user_id =  update.message.from_user['id']
     if not get_customer_by_phone(user_data['phone']):
         add_customer(user_data['name'], user_data['phone'], user_id)
-    add_order('some text', get_customer_by_phone(user_data['phone']).id, *user_data["cart"])
+    coords =  ', '.join([str(i) for i in user_data['location']]) 
+    if not get_address_by_coords_db(coords):
+        add_address(coords, user_data['address'], user_data['address_details'])
+
+    add_order('some text', get_customer_by_phone(user_data['phone']).id,  get_address_by_coords_db(coords).id, *user_data["cart"])
+    # TODO - add address
     msg = f'Пользователь {user_id} сделал заказ:\n'+f'{user_data["cart"]}'
     bot.send_message(ADMIN_ID, msg)
     send_mail(msg, ADMIN_EMAIL)
