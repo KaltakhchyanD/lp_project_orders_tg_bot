@@ -12,7 +12,7 @@ pizza_main_menu_markup = ReplyKeyboardMarkup([['Menu_button'],
 from settings import ADMIN_ID, ADMIN_EMAIL
 from utils import send_mail
 from utils import (add_customer, add_order, add_address, get_customer_by_phone,
-    get_pizza_by_id, get_pizza_by_name, get_product_by_name, get_address_by_coords_db)
+    get_pizza_by_id, get_pizza_by_name, get_product_by_name, get_address_by_coords_db, get_drink_by_id, get_drink_by_name)
 
 
 def pizza_main_menu_handler(bot, update, user_data):
@@ -32,9 +32,13 @@ def menu_button_handler(bot, update, user_data):
                                                                 ['Прочее'],
                                                                 ['Назад']]))
     user_data['pizza'] = {'menu_page':0}
+    user_data['drink'] = {'menu_page':0}
+
     return 'pizzeria_menu_state'
 
 pizza_names_dict = {}
+drink_names_dict = {}
+
 
 def print_pizza_menu(bot, update, user_data):
     pizza_num = user_data['pizza']['menu_page']
@@ -69,7 +73,7 @@ def add_pizza_to_cart_handler(bot, update, user_data):
     update.message.reply_text(f'Пицца {pizza_name} добавлена в корзину')
 
 
-def change_menu_page_handler(bot, update, user_data):
+def change_pizza_menu_page_handler(bot, update, user_data):
     if update.message.text == 'Пред.':
         user_data['pizza']['menu_page'] -= 1
         print_pizza_menu(bot, update, user_data)
@@ -125,7 +129,7 @@ def order_pizza_handler(bot, update, user_data):
         reply_markup = ReplyKeyboardMarkup([['Назад'],['Отправить заказ']]))
     product_names = [i.name for i in cart]
     for i in sorted(set(product_names)):
-        update.message.reply_text(f'{i} x{product_names.count(i)}, Цена: {get_pizza_by_name(i).price}\n')
+        update.message.reply_text(f'{i} x{product_names.count(i)}, Цена: {get_product_by_name(i).price}\n')
     return 'pizzeria_make_order_state'
 
 
@@ -158,8 +162,49 @@ def contact_info_handler(bot, update, user_data):
 
 
 def drinks_category_handler(bot, update, user_data):
-    update.message.reply_text('Здесь будет выбор напитков')
-    return 'end'
+    print_drink_menu(bot, update, user_data)
+    return 'drink_choise_state'
+
+
+def print_drink_menu(bot, update, user_data):
+    drink_num = user_data['drink']['menu_page']
+    optional_buttons = [['Пред.', 'След.', 'Назад']]
+    if not drink_num:
+        optional_buttons[0].pop(0)
+    elif drink_num == 1:
+        optional_buttons[0].pop(1)
+    if not len(drink_names_dict):
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        drink_photos = glob(current_dir+'/images/drink/drink*.jp*g')
+        for i in drink_photos:
+            k = re.search(r'drink(\d+)\.j', i)
+            drink_names_dict[k.group(1)] = i
+
+    markup = [[get_drink_by_id(i + 1).name] for i in range(drink_num * 5, min(5 + drink_num * 5, 9))] + optional_buttons
+
+    for i in range(drink_num * 5, min(5 + drink_num * 5, 9)):  # 2nd value in min() should be fixed!
+        with open(drink_names_dict[str(i+1)], 'rb') as f:
+            bot.send_photo(chat_id=update.message.chat.id, photo=f)
+    update.message.reply_text('Выберите напиток:', reply_markup=ReplyKeyboardMarkup(markup, resize_keyboard=True))
+
+
+def change_drink_menu_page_handler(bot, update, user_data):
+    if update.message.text == 'Пред.':
+        user_data['drink']['menu_page'] -= 1
+        print_drink_menu(bot, update, user_data)
+    elif update.message.text == 'След.':
+        user_data['drink']['menu_page'] += 1
+        print_drink_menu(bot, update, user_data)
+    elif update.message.text == 'Назад':
+        return menu_button_handler(bot, update, user_data)
+
+
+def add_drink_to_cart_handler(bot, update, user_data):
+    drink_name = update.message.text
+    user_data['cart'].append(get_drink_by_name(drink_name))
+    update.message.reply_text(f'напиток {drink_name} добавлен в корзину')
+
+
 
 
 def other_category_handler(bot, update, user_data):

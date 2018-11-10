@@ -248,6 +248,12 @@ def pizza_names_for_regex_hendler():
     return string_of_names
 
 
+def drink_names_for_regex_hendler():
+    drink_names = [line.name for line in Drink.query.all()]
+    string_of_names = "|".join(drink_names)
+    return string_of_names
+
+
 def add_product_to_assciation_table(order, product, count):
     if isinstance(product, Pizza):
         association = Association_pizzas(order.id, product.id, count)

@@ -7,12 +7,13 @@ from telegram.ext import MessageHandler, CommandHandler, ConversationHandler, Re
 from pizza_handlers import (pizza_main_menu_handler, menu_button_handler, special_offers_handler,
                             checkout_handler, contact_info_handler, pizza_category_handler, drinks_category_handler,
                             other_category_handler, add_pizza_to_cart_handler,
-                            change_menu_page_handler, change_cart_handler,
+                            change_pizza_menu_page_handler, change_cart_handler,
                             order_pizza_handler, send_order_handler, 
-                            remove_from_cart_handler
+                            remove_from_cart_handler, add_drink_to_cart_handler, change_drink_menu_page_handler
                             )
 
 from utils import pizza_names_for_regex_hendler as p_n
+from utils import drink_names_for_regex_hendler as d_n
 from geo import check_address_in_zone_full, check_coords_in_zone_full, get_coordinates_by_address, get_address_by_coords
 
 def start_handler(bot, update, user_data):
@@ -278,8 +279,16 @@ conversation = ConversationHandler(
         ],
         'pizza_choise_state': [
             RegexHandler(f'^{p_n()}$', add_pizza_to_cart_handler, pass_user_data=True),
-            RegexHandler('^Пред\.|След\.|Назад$', change_menu_page_handler, pass_user_data=True)
+            RegexHandler('^Пред\.|След\.|Назад$', change_pizza_menu_page_handler, pass_user_data=True)
         ],
+
+
+        'drink_choise_state': [
+            RegexHandler(f'^{d_n()}$', add_drink_to_cart_handler, pass_user_data=True),
+            RegexHandler('^Пред\.|След\.|Назад$', change_drink_menu_page_handler, pass_user_data=True)
+        ],
+
+
 
         'pizzeria_checkout_state':[
             RegexHandler('^(Назад)$', pizza_main_menu_handler, pass_user_data=True),
